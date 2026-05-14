@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: addressbook-deployment
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: addressbook
+
+  template:
+    metadata:
+      labels:
+        app: addressbook
+
+    spec:
+      containers:
+
+        # 🟩 Main App (Tomcat)
+        - name: addressbook
+          image: tomcat:9-jdk17
+          ports:
+            - containerPort: 8080
+
+          volumeMounts:
+            - name: war-volume
+              mountPath: /usr/local/tomcat/webapps/addressbook.war
+
+        # 🟦 Node Exporter
+        - name: node-exporter
+          image: prom/node-exporter
+          ports:
+            - containerPort: 9100
+
+      volumes:
+        - name: war-volume
+          hostPath:
+            path: /home/ubuntu/target/addressbook.war   # ✅ ABSOLUTE PATH
+            type: File
